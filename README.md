@@ -1,8 +1,6 @@
 
-# Hardhat-Tailwind-React Ethers Starter Kit
-Speedily develope your decentralized application with this starter kit for free!
-
-Follow the steps below to download, install, and run this project.
+# CreatConomy - Bridging the Gap existing between Local Creators and the World. 
+This repository contains the project built to establish a decentralized app that provides the opportunity and platform required by local creators to get seen by the rest of the world.
 
 ## Dependencies
 Install these prerequisites to follow along with the tutorial. See free video tutorial or a full explanation of each prerequisite.
@@ -13,11 +11,11 @@ Install these prerequisites to follow along with the tutorial. See free video tu
 
 
 ## Step 1. Clone the project
-`git clone https://github.com/Daltonic/tailwind_ethers_starter_kit <PROJECT NAME>`
+`git clone https://github.com/nameisunknown/CreatConomy creatconomy`
 
 ## Step 2. Install dependencies
 ```sh
-$ cd <PROJECT NAME>
+$ cd creatconomy
 $ yarn install # or npm install
 ```
 ## Step 3. Start Hardhat Node
@@ -29,4 +27,6 @@ $ yarn hardhat node
 ## Step 4. Run the Front End Application
 `$ yarn start`
 Visit this URL in your browser: http://localhost:3000
+
+`By Segun Olawale - nameisunknown`
 
