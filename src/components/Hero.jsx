@@ -27,7 +27,8 @@ function Banner(){
         </p>
         <p className="font-light mb-11">& sell, get your NFTs now.</p>
         <div className="flex text-5xl mb-4">
-          <button className="text-sm p-2 bg-green-500 rounded-sm w-auto flex justify-center items-center shadow-md shadow-gray-700">
+          <button className="text-sm p-2 bg-green-500 rounded-sm w-auto flex justify-center items-center shadow-md shadow-gray-700"
+          onClick={() => setGlobalState('boxModal', 'scale-100')}>
             Create NFT
             <BsArrowRightShort />
           </button>
