@@ -3,7 +3,7 @@ import homepageImg from '../assets/images/picture0.png'
 
 export function Hero() {
   return (
-    <div className="flex flex-col items-start md:flex-row space-y-4">
+    <div className="flex flex-col items-start md:flex-row space-y-4 sm:space-y-0">
       <Banner />
       <Bidder />
     </div>
