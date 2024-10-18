@@ -1,5 +1,3 @@
-import { Countdown } from "./Countdown"
-
 export function Artworks({auctions, title, showOffer}){
   return (
     <div className="w-4/5 py-10 mx-auto justify-center">
@@ -32,14 +30,14 @@ function Auction({auction, showOffer}) {
         <div className="flex flex-col items-start py-2 px-1">
           <span>Auction End</span>
           <div className='font-bold text-center'>
-            {auction.live && auction.duration > Date.now() ? (<Countdown />) : (<Countdown timeStamp={auction.duration}/>) }
+            {auction.live && auction.duration > Date.now() ? () : ('00:00:00') }
           </div>
         </div>
       </div>
       {auction.tokenId % 2 == 0 ? (
         <button className="bg-green-500 w-full h-[40px p-2 text-cenetr font-bold font-mono">Place a Bid</button>
       ) : (
-        <button className="bg-red-500 w-full h-[40px] p-2 text-center font-bold font-mono">
+        <button className="bg-red-500 w-full h-[40px] p-2 text-center font-bold font-mono" onClick={() => setGlobalState('offerModal','scale-100')}>
           Buy NFT
         </button>
       ) }
