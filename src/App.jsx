@@ -4,6 +4,7 @@ import Collections from "./views/Collections";
 import Nft from "./views/Nft";
 import Header from "./components/Header";
 import {Footer} from "./components/Footer";
+import { PriceChangeModal } from "./components/PriceChangeModal";
 
 const App = () => {
   return (
@@ -16,7 +17,7 @@ const App = () => {
       </Routes>
       <Footer />
       
-      
+      <PriceChangeModal />
     </div>
   );
 };

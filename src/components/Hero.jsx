@@ -1,5 +1,6 @@
 import { BsArrowRightShort } from "react-icons/bs";
-import homepageImg from '../assets/images/picture0.png'
+import homepageImg from '../assets/images/picture0.png';
+import { setGlobalState, useGlobalState } from "../store";
 
 export function Hero() {
   return (
@@ -11,6 +12,7 @@ export function Hero() {
 }
 
 function Banner(){
+  const [boxModal] = useGlobalState("boxModal");
   return (
     <div
       className="flex flex-col md:flex-row w-full justify-between 

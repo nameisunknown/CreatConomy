@@ -107,7 +107,6 @@ export function OfferItem() {
               <option value="" hidden>Select Biddability</option>
               <option value={true}>Yes </option>
               <option value={false} >No</option>
-              
             </select>
           </div>
           <button
