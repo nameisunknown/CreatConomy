@@ -38,7 +38,7 @@ function Auction({auction, showOffer}) {
         <button className="bg-green-500 w-full h-[40px p-2 text-cenetr font-bold font-mono" 
         onClick={() => setGlobalState('priceModal','scale-100')}>Place a Bid</button>
       ) : (
-        <button className="bg-red-500 w-full h-[40px] p-2 text-center font-bold font-mono" onClick={() => setGlobalState('offerModal','scale-100')}>
+        <button className="bg-red-500 w-full h-[40px] p-2 text-center font-bold font-mono" onClick={() => setGlobalState('bidPlacingModal','scale-100')}>
           Buy NFT
         </button>
       ) }
