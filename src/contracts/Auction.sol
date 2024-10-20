@@ -29,11 +29,13 @@ contract Auction is ERC721URIStorage, ReentrancyGuard{
 
   }
 
-  mapping(uint => AuctionStruct) auctionedItem;
+  mapping(uint => AuctionStruct) public auctionedItem;
   mapping(uint => bool) auctionedItemExist;
 
   event AuctionItemCreated(uint256 indexedtokenId, address seller,
   address owner, uint256 price, bool sold);
+
+  error UnAuthorized_Entity();
 
   constructor(uint8 _royaltyFee) ERC721("CreatCo", "CRT"){
     royaltyFee = _royaltyFee;
@@ -80,18 +82,33 @@ contract Auction is ERC721URIStorage, ReentrancyGuard{
 
     emit AuctionItemCreated(_tokenId, msg.sender, address(0), _price, false);
   }
-  
-}
 
-function payy(address to, uint256 amount){
+  function payy(address to, uint256 amount){
   (bool success, ) = payable(to).call{value: amount}("");
   require(success);
 }
 
 function getTimeSTamp(uint256 _seconds, uint256 _minutes,
-uint256 _hour, uint256 _day) view returns (uint){
+uint256 _hour, uint256 _day) public view returns (uint){
   return 
     block.timestamp + (1 seconds * _seconds) + (1 minutes * _minutes) +
     (1 hours * _hour) + (1 days * _day);
 
 }
+
+function offerAuction(uint256 _tokenId, bool biddable, uint256 sec, uint256 min,
+  uint256 hour, uint256 day) public{
+      if(!!auctionedItem[_tokenId].live){
+        setApprovalForALl(address(this), true);
+        IERC721(address(this)).transferFrom(msg.sender, address, _tokenId);
+      }
+    auctionedItem[_tokenId].bids = 0;
+    auctionedItem[_tokenId].live = 0;
+    auctionedItem[_tokenId].sold = false;
+    auctionedItem[_tokenId].biddable = biddabe;
+    auctionedItem_tokenId[].durations = getTimeSTamp(sec, nin, hour, d)
+
+  }
+  
+}
+
