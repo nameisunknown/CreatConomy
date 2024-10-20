@@ -146,6 +146,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
       require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
       require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item is not available");
       require(!auctionedItem[_tokenId].biddable, "Auction must not be biddable");
+      
       AuctionStruct storage auct= auctionedItem[_tokenId];
       address seller = auct.seller;
       address owner = auct.owner;
