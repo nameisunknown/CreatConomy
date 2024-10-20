@@ -39,6 +39,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     mapping(uint => AuctionStruct) public auctionedItem;
     mapping(uint => bool) auctionedItemExist;
     mapping(uint => BiddableStruct[]) biddersOf;
+    mapping(string => uint) existingURIs;
 
     event AuctionItemCreated(
         uint256 indexed tokenId,
@@ -190,11 +191,31 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].winner = msg.sender;
     }
 
-    function claimPrize(uint _tokenId, uint bidder)public{
-        require(getTimeSTamp(0, 0, 0, 0) > auctionedItem[_tokenId].duration);
+    function claimPrize(uint _tokenId, uint _bidNo)public{
+        require(getTimeSTamp(0, 0, 0, 0) > auctionedItem[_tokenId].duration, "Auction is still Live");
+        require(
+            auctionedItem[_tokenId].winner == msg.sender,
+            "You are not the winner"
+        );
+
+        biddersOf[_tokenId][_bidNo].won = true;
+        uint price = auctionedItem[_tokenId].price;
+        address seller = auctionedItem[_tokenId].seller;
+
+        auctionedItem[_tokenId].winner = address(0);
+        auctionedItem[_tokenId].live = false;
+        auctionedItem[_tokenId].sold = true;
+        auctionedItem[_tokenId].bids = 0;
+        auctionedItem[_tokenId].duration = getTimeSTamp(0, 0, 0, 0);
+
     }
 
     function getListingPrice() public view returns (uint) {
         return listingPrice;
+    }
+
+    function setListingPrice(uint _price) public {
+        require(msg.sender == companyAcc, "Unauthorized entity");
+        listingPrice = _price;
     }
 }
