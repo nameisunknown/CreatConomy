@@ -28,8 +28,15 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         uint duration;
     }
 
+    struct BiddableStruct {
+        address bidder;
+        uint256 price;
+        uint256 timestamp;
+    }
+
     mapping(uint => AuctionStruct) public auctionedItem;
     mapping(uint => bool) auctionedItemExist;
+    mapping(uint => BiddableStruct[]) biddersOf;
 
     event AuctionItemCreated(
         uint256 indexedtokenId,
@@ -146,7 +153,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
       require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
       require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item is not available");
       require(!auctionedItem[_tokenId].biddable, "Auction must not be biddable");
-      
+
       AuctionStruct storage auct= auctionedItem[_tokenId];
       address seller = auct.seller;
       address owner = auct.owner;
@@ -169,5 +176,15 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
         require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item not available");
         require(auctionedItem[_tokenId].biddable, "Auction must be biddable");
+
+        BiddableStruct memory bidder;
+        bidder.bidder = msg.sender;
+        bidder.price = msg.value;
+        bidder.timestamp = getTimeSTamp(0, 0, 0, 0);
+
+        biddersOf[_tokenId].push(bidder);
+        auctionedItem[_tokenId].bids++;
+        auctionedItem[_tokenId].price = msg.value;
+        auctionedItem[_tokenId].winner = msg.sender;
     }
 }
