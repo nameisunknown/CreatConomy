@@ -32,6 +32,8 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         address bidder;
         uint256 price;
         uint256 timestamp;
+        bool refunded;
+        bool won;
     }
 
     mapping(uint => AuctionStruct) public auctionedItem;
@@ -39,7 +41,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     mapping(uint => BiddableStruct[]) biddersOf;
 
     event AuctionItemCreated(
-        uint256 indexedtokenId,
+        uint256 indexed tokenId,
         address seller,
         address owner,
         uint256 price,
@@ -186,5 +188,13 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].bids++;
         auctionedItem[_tokenId].price = msg.value;
         auctionedItem[_tokenId].winner = msg.sender;
+    }
+
+    function claimPrize(uint _tokenId, uint bidder)public{
+        require(getTimeSTamp(0, 0, 0, 0) > auctionedItem[_tokenId].duration);
+    }
+
+    function getListingPrice() public view returns (uint) {
+        return listingPrice;
     }
 }
