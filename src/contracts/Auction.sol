@@ -239,10 +239,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
-     function getLiveAuctions()
-        public
-        view
-        returns (AuctionStruct[] memory Auctions)
+     function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
     {
         uint totalItemsCount = totalItems;
         uint totalSpace;
@@ -279,6 +276,13 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].price = msg.value;
         auctionedItem[_tokenId].winner = msg.sender;
     }
+
+    function getBidders(uint tokenId) public view
+        returns (BiddableStruct[] memory)
+    {
+        return biddersOf[tokenId];
+    }
+
 
     function claimPrize(uint _tokenId, uint _bidNo)public{
         require(getTimeSTamp(0, 0, 0, 0) > auctionedItem[_tokenId].duration, "Auction is still Live");
