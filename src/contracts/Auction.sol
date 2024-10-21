@@ -103,8 +103,8 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
 
         emit AuctionItemCreated(
             _tokenId,
-            msg.sender,
-            address(0),
+            auctions.seller,
+            auctions.owner,
             _price,
             false
         );
@@ -170,7 +170,8 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
       uint royalty = (msg.value * royaltyFee) / 100;
 
       payy(owner, (msg.value - royalty));
-      payy(seller, royalty);
+      payy(companyAcc, royalty);
+      payy(seller, (msg.value - royalty));
 
       IERC721(address(this)).transferFrom(address(this), msg.sender, _tokenId);
     }
@@ -178,6 +179,16 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     function getAuction(uint _id) public view returns (AuctionStruct memory) {
         require(auctionedItemExist[_id], "Auctioned Item not found");
         return auctionedItem[_id];
+    }
+
+    function getAllAuctions() public view returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        Auctions = new AuctionStruct[](totalItemsCount);
+
+        for (uint i = 0; i < totalItemsCount; i++) {
+            Auctions[i] = auctionedItem[i + 1];
+        }
     }
 
     function placeBid(uint256 _tokenId) public payable{
@@ -203,35 +214,83 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
             "You are not the winner"
         );
 
-        biddersOf[_tokenId][_bidNo].won = true;
-        uint price = auctionedItem[_tokenId].price;
-        address seller = auctionedItem[_tokenId].seller;
+        _finalizeAuction(_tokenId);
 
-        auctionedItem[_tokenId].winner = address(0);
-        auctionedItem[_tokenId].live = false;
-        auctionedItem[_tokenId].sold = true;
-        auctionedItem[_tokenId].bids = 0;
-        auctionedItem[_tokenId].duration = getTimeSTamp(0, 0, 0, 0);
+        _handlePayments(_tokenId);
 
-        uint royality = (price * royaltyFee) / 100;
-        payy(auctionedItem[_tokenId].owner, (price - royality));
-        payy(seller, royality);
-        IERC721(address(this)).transferFrom(address(this), msg.sender, _tokenId);
-        auctionedItem[_tokenId].owner = msg.sender;
+        _transferNFTToWinner(_tokenId);
 
-        performRefund(_tokenId);
+        _refundNonWinners(_tokenId, _bidNo);
 
+        // I ENCOUNTERED STACK TOO DEEP ISSUE FOR THIS:::
+        // AuctionStruct storage auction = auctionedItem[_tokenId];
+
+        // uint price = auction.price;
+        // uint royality = (price * royaltyFee) / 100;
+
+        // auction.live = false;
+        // auction.sold = true;
+        // auction.bids = 0;
+        // auction.duration = getTimeSTamp(0, 0, 0, 0);
+
+        // payy(companyAcc, royality);
+        // payy(auction.owner, (price - royality));
+
+        // _transfer(address(this), msg.sender, _tokenId);
+        // auction.owner = msg.sender;
+
+        // performRefund(_tokenId);
+        // biddersOf[_tokenId][_bidNo].won = true;
+
+    }
+
+    function _finalizeAuction(uint _tokenId) internal {
+        AuctionStruct storage auction = auctionedItem[_tokenId];
+        auction.live = false;
+        auction.sold = true;
+        auction.bids = 0;
+        auction.duration = getTimeSTamp(0, 0, 0, 0);
+    }
+
+    function _handlePayments(uint _tokenId) internal {
+        AuctionStruct storage auction = auctionedItem[_tokenId];
+        uint256 price = auction.price;
+        uint256 royalty = (price * royaltyFee) / 100;
+
+        payy(companyAcc, royalty);
+
+        payy(auction.owner, (price - royalty));
+    }
+
+    function _transferNFTToWinner(uint _tokenId) internal {
+        _transfer(address(this), auctionedItem[_tokenId].winner, _tokenId);
+
+        auctionedItem[_tokenId].owner = auctionedItem[_tokenId].winner;
+    }
+
+    function _refundNonWinners(uint _tokenId, uint _bidNo) internal {
+        for (uint i = 0; i < biddersOf[_tokenId].length; i++) {
+            if (biddersOf[_tokenId][i].bidder != auctionedItem[_tokenId].winner) {
+                if (!biddersOf[_tokenId][i].refunded) {
+                    biddersOf[_tokenId][i].refunded = true;
+                    payy(biddersOf[_tokenId][i].bidder, biddersOf[_tokenId][i].price);
+                }
+            } else {
+                biddersOf[_tokenId][_bidNo].won = true;
+            }
+        }
+
+        delete biddersOf[_tokenId];
     }
 
     function performRefund(uint _tokenId) internal {
         for (uint i = 0; i < biddersOf[_tokenId].length; i++) {
-            if (biddersOf[_tokenId][i].bidder != msg.sender) {
+            if (biddersOf[_tokenId][i].bidder != auctionedItem[_tokenId].winner) {
+                if (!biddersOf[_tokenId][i].refunded) {
                 biddersOf[_tokenId][i].refunded = true;
-                payy(
-                    biddersOf[_tokenId][i].bidder,
-                    biddersOf[_tokenId][i].price
-                );
-            } else {
+                payy(biddersOf[_tokenId][i].bidder, biddersOf[_tokenId][i].price);
+            }
+         }else {
                 biddersOf[_tokenId][i].won = true;
             }
             biddersOf[_tokenId][i].timestamp = getTimeSTamp(0, 0, 0, 0);
