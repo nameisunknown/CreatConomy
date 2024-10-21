@@ -191,6 +191,31 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
+    function getMyAuctions()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems.current();
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].owner == msg.sender) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].owner == msg.sender) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
+
+
     function placeBid(uint256 _tokenId) public payable{
         require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
         require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item not available");
