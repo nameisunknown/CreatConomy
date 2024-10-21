@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Auction is ERC721URIStorage, ReentrancyGuard {
+contract NftAuction is ERC721URIStorage, ReentrancyGuard {
     uint256 private totalItems;
     uint8 royaltyFee;
     address companyAcc;
