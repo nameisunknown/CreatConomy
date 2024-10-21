@@ -175,6 +175,11 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
       IERC721(address(this)).transferFrom(address(this), msg.sender, _tokenId);
     }
 
+    function getAuction(uint _id) public view returns (AuctionStruct memory) {
+        require(auctionedItemExist[_id], "Auctioned Item not found");
+        return auctionedItem[_id];
+    }
+
     function placeBid(uint256 _tokenId) public payable{
         require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
         require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item not available");
@@ -257,4 +262,6 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
 
         auctionedItem[tokenId].price = price;
     }
+
+ 
 }
