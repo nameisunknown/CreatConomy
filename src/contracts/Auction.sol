@@ -239,7 +239,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
-     function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
+    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
     {
         uint totalItemsCount = totalItems;
         uint totalSpace;
@@ -260,6 +260,29 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
+    function getUnsoldAuction()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (!auctionedItem[i + 1].sold) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (!auctionedItem[i + 1].sold) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
 
     function placeBid(uint256 _tokenId) public payable{
         require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
@@ -282,7 +305,6 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     {
         return biddersOf[tokenId];
     }
-
 
     function claimPrize(uint _tokenId, uint _bidNo)public{
         require(getTimeSTamp(0, 0, 0, 0) > auctionedItem[_tokenId].duration, "Auction is still Live");
