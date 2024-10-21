@@ -208,6 +208,31 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].bids = 0;
         auctionedItem[_tokenId].duration = getTimeSTamp(0, 0, 0, 0);
 
+        uint royality = (price * royaltyFee) / 100;
+        payy(auctionedItem[_tokenId].owner, (price - royality));
+        payy(seller, royality);
+        IERC721(address(this)).transferFrom(address(this), msg.sender, _tokenId);
+        auctionedItem[_tokenId].owner = msg.sender;
+
+        performRefund(_tokenId);
+
+    }
+
+    function performRefund(uint _tokenId) internal {
+        for (uint i = 0; i < biddersOf[_tokenId].length; i++) {
+            if (biddersOf[_tokenId][i].bidder != msg.sender) {
+                biddersOf[_tokenId][i].refunded = true;
+                payy(
+                    biddersOf[_tokenId][i].bidder,
+                    biddersOf[_tokenId][i].price
+                );
+            } else {
+                biddersOf[_tokenId][i].won = true;
+            }
+            biddersOf[_tokenId][i].timestamp = getTimeSTamp(0, 0, 0, 0);
+        }
+
+        delete biddersOf[_tokenId];
     }
 
     function getListingPrice() public view returns (uint) {
@@ -217,5 +242,19 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     function setListingPrice(uint _price) public {
         require(msg.sender == companyAcc, "Unauthorized entity");
         listingPrice = _price;
+    }
+
+    function changePrice(uint tokenId, uint price) public {
+        require(
+            auctionedItem[tokenId].owner == msg.sender,
+            "Unauthorized entity"
+        );
+        require(
+            getTimeSTamp(0, 0, 0, 0) > auctionedItem[tokenId].duration,
+            "Auction still Live"
+        );
+        require(price > 0 ether, "Price must be greater than zero");
+
+        auctionedItem[tokenId].price = price;
     }
 }
