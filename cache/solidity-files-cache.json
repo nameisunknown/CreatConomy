@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/user/Documents/HomeInDocs/web3/projects/creatconomy/src/contracts/Auction.sol": {
-      "lastModificationDate": 1729473778061,
-      "contentHash": "197b0a51a2fa8fc19c642a199c09653c",
+      "lastModificationDate": 1729475248844,
+      "contentHash": "52456183553d1fab2380decad4d80a7a",
       "sourceName": "src/contracts/Auction.sol",
       "solcConfig": {
         "version": "0.8.24",
