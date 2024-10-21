@@ -215,30 +215,6 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
-    function getSoldAuction()
-        public
-        view
-        returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        uint totalSpace;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].sold) {
-                totalSpace++;
-            }
-        }
-
-        Auctions = new AuctionStruct[](totalSpace);
-
-        uint index;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].sold) {
-                Auctions[index] = auctionedItem[i + 1];
-                index++;
-            }
-        }
-    }
-
     function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
     {
         uint totalItemsCount = totalItems;
