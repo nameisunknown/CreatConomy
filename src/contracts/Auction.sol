@@ -196,7 +196,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         view
         returns (AuctionStruct[] memory Auctions)
     {
-        uint totalItemsCount = totalItems.current();
+        uint totalItemsCount = totalItems;
         uint totalSpace;
         for (uint i = 0; i < totalItemsCount; i++) {
             if (auctionedItem[i + 1].owner == msg.sender) {
@@ -220,7 +220,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         view
         returns (AuctionStruct[] memory Auctions)
     {
-        uint totalItemsCount = totalItems.current();
+        uint totalItemsCount = totalItems;
         uint totalSpace;
         for (uint i = 0; i < totalItemsCount; i++) {
             if (auctionedItem[i + 1].sold) {
@@ -233,6 +233,30 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         uint index;
         for (uint i = 0; i < totalItemsCount; i++) {
             if (auctionedItem[i + 1].sold) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
+
+     function getLiveAuctions()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
                 Auctions[index] = auctionedItem[i + 1];
                 index++;
             }
