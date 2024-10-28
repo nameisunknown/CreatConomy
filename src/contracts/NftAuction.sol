@@ -65,10 +65,7 @@ contract NftAuction is ERC721URIStorage, ReentrancyGuard {
         return true;
     }
 
-    function createAuction(
-        string memory _name,
-        string memory _description,
-        string memory _image,
+    function createAuction( string memory _name, string memory _description, string memory _image,
         string memory _tokenURI,
         uint _price
     ) public payable nonReentrant {
