@@ -17,12 +17,14 @@ describe("Nft Auction Contract", function () {
     const price = convertToWei(1.5);
     const listingPrice = convertToWei(0.02);
     const royaltyFee = 5;
+    const tokenId = 1;
     const descr = "Doodle for all";
     const img = "https://ipfs.io/ipfs/Yubgtyk89jhyt5";
     const metadata1 =
       "https://ipfs.io/ipfs/QmY3p6rUBSyyCCg4Gp35aCX2HGPUSyR2EcnUTrsrhK4si4"; // tokenURI
     const metadata2 =
       "https://ipfs.io/ipfs/QmY3p6rUBSyyCCg4Gp35aCX2HGPUSyR2EcnUTrsrhK4si5"; // tokenURI for second auction
+    const biddable = false;
 
     // I'm deploying the contract here
     const Contract = await ethers.getContractFactory("NftAuction");
@@ -30,6 +32,7 @@ describe("Nft Auction Contract", function () {
     const [seller, buyer, reseller, bidder] = await ethers.getSigners();
 
     return {
+      tokenId,
       name,
       price,
       descr,
@@ -43,6 +46,7 @@ describe("Nft Auction Contract", function () {
       bidder,
       royaltyFee,
       listingPrice,
+      biddable
     };
   }
 
@@ -110,10 +114,35 @@ describe("Nft Auction Contract", function () {
       expect(result.price).to.be.equal(newPrice);
     });
 
-    it("should confirm NFT auction listing", async function () {
+    it("should confirm the number of NFT listed", async function () {
       const { contract, price } = this.state;
       let result = await contract.getAllAuctions();
       expect(result).to.have.lengthOf(2);
+    });
+
+    it("should confirm the purchase of NFT listed", async function () {
+      const { contract, price, tokenId, biddable } = this.state;
+      let result = await contract.getAuction();
+      expect(result.owner).to.be.equal(seller.address);
+
+      result = await contract.balanceOf(buyer.address);
+      expect(result).to.be.equal(1);
+
+      await contract.offerAuction(tokenId, !biddable, 5, 0, 0, 0, {
+        from: seller.address
+      });
+
+      await contract.buyAuctionedItems(tokenId, {
+        value: price
+      });
+
+
+      result = await contract.balanceOf(buyer.address);
+      expect(result).to.be.equal(1);
+
+
+      result = await contract.balanceOf(seller.address);
+      expect(result).to.be.equal(0);
     });
   });
 });
