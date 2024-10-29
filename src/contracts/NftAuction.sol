@@ -149,6 +149,21 @@ contract NftAuction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].duration = getTimeSTamp(sec, min, hour, day);
     }
 
+    function getAllAuctions() public view returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        Auctions = new AuctionStruct[](totalItemsCount);
+
+        for (uint i = 0; i < totalItemsCount; i++) {
+            Auctions[i] = auctionedItem[i + 1];
+        }
+    }
+
+    function getAuction(uint _id) public view returns (AuctionStruct memory) {
+        require(auctionedItemExist[_id], "Auctioned Item not found");
+        return auctionedItem[_id];
+    }
+
     function buyAuctionedItem(uint256 _tokenId) public payable nonReentrant{
       require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
       require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item is not available");
@@ -173,114 +188,6 @@ contract NftAuction is ERC721URIStorage, ReentrancyGuard {
       IERC721(address(this)).transferFrom(address(this), msg.sender, _tokenId);
     }
 
-    function getAuction(uint _id) public view returns (AuctionStruct memory) {
-        require(auctionedItemExist[_id], "Auctioned Item not found");
-        return auctionedItem[_id];
-    }
-
-    function getAllAuctions() public view returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        Auctions = new AuctionStruct[](totalItemsCount);
-
-        for (uint i = 0; i < totalItemsCount; i++) {
-            Auctions[i] = auctionedItem[i + 1];
-        }
-    }
-
-    function getMyAuctions()
-        public
-        view
-        returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        uint totalSpace;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].owner == msg.sender) {
-                totalSpace++;
-            }
-        }
-
-        Auctions = new AuctionStruct[](totalSpace);
-
-        uint index;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].owner == msg.sender) {
-                Auctions[index] = auctionedItem[i + 1];
-                index++;
-            }
-        }
-    }
-
-    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        uint totalSpace;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
-                totalSpace++;
-            }
-        }
-
-        Auctions = new AuctionStruct[](totalSpace);
-
-        uint index;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
-                Auctions[index] = auctionedItem[i + 1];
-                index++;
-            }
-        }
-    }
-
-    function getUnsoldAuction()
-        public
-        view
-        returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        uint totalSpace;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (!auctionedItem[i + 1].sold) {
-                totalSpace++;
-            }
-        }
-
-        Auctions = new AuctionStruct[](totalSpace);
-
-        uint index;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (!auctionedItem[i + 1].sold) {
-                Auctions[index] = auctionedItem[i + 1];
-                index++;
-            }
-        }
-    }
-
-    function getSoldAuction()
-        public
-        view
-        returns (AuctionStruct[] memory Auctions)
-    {
-        uint totalItemsCount = totalItems;
-        uint totalSpace;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].sold) {
-                totalSpace++;
-            }
-        }
-
-        Auctions = new AuctionStruct[](totalSpace);
-
-        uint index;
-        for (uint i = 0; i < totalItemsCount; i++) {
-            if (auctionedItem[i + 1].sold) {
-                Auctions[index] = auctionedItem[i + 1];
-                index++;
-            }
-        }
-    }
-
     function placeBid(uint256 _tokenId) public payable{
         require(msg.value >= auctionedItem[_tokenId].price, "Insufficient Amount");
         require(auctionedItem[_tokenId].duration > getTimeSTamp(0, 0, 0, 0), "Auctioned Item not available");
@@ -295,12 +202,6 @@ contract NftAuction is ERC721URIStorage, ReentrancyGuard {
         auctionedItem[_tokenId].bids++;
         auctionedItem[_tokenId].price = msg.value;
         auctionedItem[_tokenId].winner = msg.sender;
-    }
-
-    function getBidders(uint tokenId) public view
-        returns (BiddableStruct[] memory)
-    {
-        return biddersOf[tokenId];
     }
 
     function claimPrize(uint _tokenId, uint _bidNo)public{
@@ -377,6 +278,106 @@ contract NftAuction is ERC721URIStorage, ReentrancyGuard {
         }
 
         delete biddersOf[_tokenId];
+    }
+
+    //Sellers can now choose to view their persinal auction in here
+    function getMyAuctions()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].owner == msg.sender) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].owner == msg.sender) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
+
+    function getBidders(uint tokenId) public view
+        returns (BiddableStruct[] memory)
+    {
+        return biddersOf[tokenId];
+    }
+
+    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].duration > getTimeSTamp(0, 0, 0, 0)) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
+
+    function getUnsoldAuction()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (!auctionedItem[i + 1].sold) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (!auctionedItem[i + 1].sold) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
+    }
+
+    function getSoldAuction()
+        public
+        view
+        returns (AuctionStruct[] memory Auctions)
+    {
+        uint totalItemsCount = totalItems;
+        uint totalSpace;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].sold) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+
+        uint index;
+        for (uint i = 0; i < totalItemsCount; i++) {
+            if (auctionedItem[i + 1].sold) {
+                Auctions[index] = auctionedItem[i + 1];
+                index++;
+            }
+        }
     }
 
     function performRefund(uint _tokenId) internal {
